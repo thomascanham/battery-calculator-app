@@ -9,7 +9,7 @@
       "type": "image/png"
     },
     {
-      "src": "icons/apple-touch-icon-72x72.png",
+      "src": "icons/apple-touchs-icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png"
     },
@@ -47,5 +47,7 @@
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0097d5"
+  "theme_color": "#0097d5",
+  "lang": "en-GB",
+  "orientation": "portrait"
 }
