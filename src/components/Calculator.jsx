@@ -61,9 +61,15 @@ export default function Calculator({ baseValues, openSettings }) {
       <CalculatorCustomStyles>
         <Container>
           <Card shadow='xs' withBorder>
-            <Text>
-              {baseValues.fiddleFactor} x [ ( {baseValues.Ts} x {form.getInputProps('Is').value ? form.getInputProps('Is').value : 'Is'} ) + ( {baseValues.Ta} x {form.getInputProps('Ia').value ? form.getInputProps('Ia').value : 'Ia'} ) ] 
-            </Text>
+            <Card.Section withBorder inheritPadding py="sm">
+              Calculation
+            </Card.Section>
+
+            <Card.Section inheritPadding py="md">
+              <Text>
+                {baseValues.fiddleFactor} x [ ( {baseValues.Ts} x {form.getInputProps('Is').value ? form.getInputProps('Is').value : 'Is'} ) + ( {baseValues.Ta} x {form.getInputProps('Ia').value ? form.getInputProps('Ia').value : 'Ia'} ) ] 
+              </Text>
+            </Card.Section>
           </Card>
 
           <form onSubmit={(event) => handleFormSubmit(event)}>
@@ -114,6 +120,18 @@ export default function Calculator({ baseValues, openSettings }) {
     return (
       <CalculatorCustomStyles>
         <Container>
+          <Card shadow='xs' withBorder mb="xl">
+            <Card.Section withBorder inheritPadding py="sm">
+              Calculation
+            </Card.Section>
+            
+            <Card.Section inheritPadding py="md">
+              <Text>
+              {baseValues.fiddleFactor} x [ ( {baseValues.Ts} x {form.getInputProps('Is').value ? form.getInputProps('Is').value : 'Is'} ) + ( {baseValues.Ta} x {form.getInputProps('Ia').value ? form.getInputProps('Ia').value : 'Ia'} ) ] 
+            </Text>
+            </Card.Section>
+          </Card>
+
           <ResultsCard result={results} />
           <Button onClick={() => restInputs()}>Reset</Button>
         </Container> 
