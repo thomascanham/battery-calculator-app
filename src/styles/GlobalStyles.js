@@ -1,24 +1,35 @@
-//currently a bug with the liner-gradient not displaying from the
-//top of the page on an iphone with a integrated notch
-
-
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyles = createGlobalStyle`
   :root {
-    --blue: rgb(0, 151, 213);
+    --blue: #0097d5;
+    --blue-dark: #006a9e;
   }
+
   * {
     box-sizing: border-box !important;
   }
+
   body {
-    background: var(--blue);
-    /* background: linear-gradient(180deg, rgba(0, 151, 213, 1) 0%, rgba(255, 255, 255, 1) 75%); */
-    height: 100vh;
-    overflow: none;
+    background: linear-gradient(180deg, #e8f4f8 0%, #f8fafc 100%);
+    min-height: 100vh;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   }
+
   input {
     font-size: 16px !important;
+  }
+
+  /* Smooth transitions for interactive elements */
+  button, input, .mantine-Card-root {
+    transition: all 0.2s ease;
+  }
+
+  /* Better focus styles */
+  *:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
   }
 `;
 

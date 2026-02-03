@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { Drawer } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -8,14 +8,37 @@ import Header from './components/Header';
 import Calculator from './components/Calculator';
 import Settings from './components/Settings';
 
+const STORAGE_KEY = 'battery-calculator-settings';
+const DEFAULT_VALUES = {
+  fiddleFactor: 1.25,
+  Ts: 24,
+  Ta: 0.5,
+};
+
+function loadSettings() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch {
+    // If localStorage fails, use defaults
+  }
+  return DEFAULT_VALUES;
+}
+
 export default function App() {
   const [opened, { open, close }] = useDisclosure(false);
 
-  const [baseValues, setBasevalues] = useState({
-    fiddleFactor: 1.25,
-    Ts: 24,
-    Ta: 0.5,
-  })
+  const [baseValues, setBasevalues] = useState(loadSettings)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(baseValues));
+    } catch {
+      // If localStorage fails, silently continue
+    }
+  }, [baseValues]);
 
   function updateBaseValues(inputs) {
     setBasevalues({
@@ -37,11 +60,7 @@ export default function App() {
   }
 
   function resetBaseValues() {
-    setBasevalues({
-      fiddleFactor: 1.25,
-      Ts: 24,
-      Ta: 0.5,
-    })
+    setBasevalues(DEFAULT_VALUES)
 
     close();
 

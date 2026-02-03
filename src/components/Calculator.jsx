@@ -2,8 +2,9 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
-import { Button, Card, Container, Group, NumberInput, Text } from "@mantine/core";
+import { Button, Card, Container, Group, NumberInput, Text, ActionIcon } from "@mantine/core";
 import { useForm } from '@mantine/form';
+import { IconBattery2, IconBatteryCharging, IconSettings } from '@tabler/icons-react';
 
 import ResultsCard from './ResultsCard';
 import { notifications } from '@mantine/notifications';
@@ -25,7 +26,7 @@ export default function Calculator({ baseValues, openSettings }) {
   function roundNumber(num) {
     return Math.round((num + Number.EPSILON) * 100) / 100;
   }
-  
+
   function restInputs() {
     form.reset();
     setResults(null);
@@ -42,118 +43,193 @@ export default function Calculator({ baseValues, openSettings }) {
     event.preventDefault();
     form.validate();
 
-    // check Ahr of batteries = 1.25 x [(Ts x Is) + (Ta x Ia)];
     const Ts = baseValues.Ts;
     const Is = form.getInputProps('Is').value;
     const Ta = baseValues.Ta;
     const Ia = form.getInputProps('Ia').value;
 
-    console.log(`${baseValues.fiddleFactor} x [(${Ts} + ${Is}) + (${Ta} x ${Ia})]`);
-
     const temp1 = Ts * Is;
     const temp2 = Ta * Ia;
-    const res = 1.25 * (temp1 + temp2);
+    const res = baseValues.fiddleFactor * (temp1 + temp2);
     setResults(roundNumber(res));
   }
+
+  const FormulaDisplay = () => (
+    <Card className="formula-card" shadow="lg" mb="lg">
+      <Text size="xs" fw={600} tt="uppercase" c="rgba(255,255,255,0.8)" mb="xs">
+        Formula
+      </Text>
+      <Text size="lg" fw={500} c="white">
+        {baseValues.fiddleFactor} × [ ( {baseValues.Ts} × {form.getInputProps('Is').value || 'Is'} ) + ( {baseValues.Ta} × {form.getInputProps('Ia').value || 'Ia'} ) ]
+      </Text>
+    </Card>
+  );
 
   if (!results) {
     return (
       <CalculatorCustomStyles>
-        <Container>
-          <Card shadow='xs' withBorder>
-            <Card.Section withBorder inheritPadding py="sm">
-              Calculation
-            </Card.Section>
+        <Container size="xs">
+          <Group justify="flex-end" mb="md">
+            <ActionIcon
+              variant="light"
+              color="gray"
+              size="lg"
+              onClick={openSettings}
+              aria-label="Settings"
+            >
+              <IconSettings size={20} />
+            </ActionIcon>
+          </Group>
 
-            <Card.Section inheritPadding py="md">
-              <Text>
-                {baseValues.fiddleFactor} x [ ( {baseValues.Ts} x {form.getInputProps('Is').value ? form.getInputProps('Is').value : 'Is'} ) + ( {baseValues.Ta} x {form.getInputProps('Ia').value ? form.getInputProps('Ia').value : 'Ia'} ) ] 
-              </Text>
-            </Card.Section>
-          </Card>
+          <FormulaDisplay />
 
           <form onSubmit={(event) => handleFormSubmit(event)}>
-            <NumberInput
-              label="Battery In Quiescent"
-              placeholder="0A"
-              withAsterisk
-              suffix='A'
-              key={form.key('Is')}
-              {...form.getInputProps('Is')}
-              min={0}
-              inputMode='decimal'
-              step="0.1"
-              mt='lg'
-            />
+            <Card shadow="md" mb="md" className="input-card">
+              <Group gap="sm" mb="xs">
+                <IconBattery2 size={20} color="#0097d5" />
+                <Text fw={600} size="sm">Quiescent Current</Text>
+              </Group>
+              <NumberInput
+                placeholder="Enter current (A)"
+                withAsterisk
+                suffix=' A'
+                key={form.key('Is')}
+                {...form.getInputProps('Is')}
+                min={0}
+                inputMode='decimal'
+                step="0.1"
+                size="md"
+                styles={{
+                  input: {
+                    fontSize: '18px',
+                    fontWeight: 500,
+                  }
+                }}
+              />
+            </Card>
 
-            <NumberInput
-              label="Battery In Alarm"
-              placeholder='0A'
-              withAsterisk
-              suffix='A'
-              key={form.key('Ia')}
-              {...form.getInputProps('Ia')}
-              min={0}
-              inputMode='decimal'
-              step="0.1"
-              mt='lg'
-            />
+            <Card shadow="md" mb="lg" className="input-card">
+              <Group gap="sm" mb="xs">
+                <IconBatteryCharging size={20} color="#0097d5" />
+                <Text fw={600} size="sm">Alarm Current</Text>
+              </Group>
+              <NumberInput
+                placeholder="Enter current (A)"
+                withAsterisk
+                suffix=' A'
+                key={form.key('Ia')}
+                {...form.getInputProps('Ia')}
+                min={0}
+                inputMode='decimal'
+                step="0.1"
+                size="md"
+                styles={{
+                  input: {
+                    fontSize: '18px',
+                    fontWeight: 500,
+                  }
+                }}
+              />
+            </Card>
 
-            <Button mt="lg" fullWidth type="submit" disabled={!form.isValid()} >
-              Calculate
+            <Button
+              fullWidth
+              type="submit"
+              disabled={!form.isValid()}
+              size="lg"
+              className="calculate-button"
+            >
+              Calculate Battery Size
             </Button>
-
-            <Group>
-              <Button mt='lg' color='gray' size='xs' variant='outline' onClick={openSettings}>Settings</Button>
-            </Group>
           </form>
 
-          <div className="info">
-            <Text size='sm' >Created by: Tom Canham</Text>
-          </div>
+          <Text size="xs" c="dimmed" ta="center" mt="xl" className="credit">
+            Created by Tom Canham
+          </Text>
         </Container>
       </CalculatorCustomStyles>
     )
   }
 
-  if (results) {
-    return (
-      <CalculatorCustomStyles>
-        <Container>
-          <Card shadow='xs' withBorder mb="xl">
-            <Card.Section withBorder inheritPadding py="sm">
-              Calculation
-            </Card.Section>
-            
-            <Card.Section inheritPadding py="md">
-              <Text>
-              {baseValues.fiddleFactor} x [ ( {baseValues.Ts} x {form.getInputProps('Is').value ? form.getInputProps('Is').value : 'Is'} ) + ( {baseValues.Ta} x {form.getInputProps('Ia').value ? form.getInputProps('Ia').value : 'Ia'} ) ] 
-            </Text>
-            </Card.Section>
-          </Card>
+  return (
+    <CalculatorCustomStyles>
+      <Container size="xs">
+        <FormulaDisplay />
 
-          <ResultsCard result={results} />
-          <Button onClick={() => restInputs()}>Reset</Button>
-        </Container> 
-      </CalculatorCustomStyles>
-    )
-  }
+        <ResultsCard result={results} />
+
+        <Button
+          onClick={() => restInputs()}
+          fullWidth
+          size="lg"
+          variant="outline"
+          color="dark"
+          className="reset-button"
+        >
+          Calculate Again
+        </Button>
+      </Container>
+    </CalculatorCustomStyles>
+  )
 }
 
 Calculator.propTypes = {
-  baseValues: PropTypes.object,
-  openSettings: PropTypes.any,
+  baseValues: PropTypes.shape({
+    fiddleFactor: PropTypes.number.isRequired,
+    Ts: PropTypes.number.isRequired,
+    Ta: PropTypes.number.isRequired,
+  }).isRequired,
+  openSettings: PropTypes.func.isRequired,
 }
 
 const CalculatorCustomStyles = styled.div`
-  width: 100vw;
-  height: 80vh;
-  background: white;
-  padding: 30px 0;
-  .info {
-    padding-top: 180px;
-    text-align: center;
-    font-size: 10px;
-    opacity: 0.15;
+  min-height: calc(100vh - 100px);
+  padding: 24px 0 40px;
+
+  .formula-card {
+    background: linear-gradient(135deg, #0097d5 0%, #006a9e 100%);
+    border: none;
+  }
+
+  .input-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+    &:focus-within {
+      box-shadow: 0 8px 24px rgba(0, 151, 213, 0.15);
+      transform: translateY(-2px);
+    }
+  }
+
+  .calculate-button {
+    background: linear-gradient(135deg, #0097d5 0%, #006a9e 100%);
+    border: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 151, 213, 0.3);
+    }
+
+    &:disabled {
+      background: #e9ecef;
+      color: #adb5bd;
+    }
+  }
+
+  .reset-button {
+    font-weight: 600;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  .credit {
+    opacity: 0.5;
   }
 `;

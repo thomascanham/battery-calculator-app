@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
-import { NumberInput, Button, Group } from "@mantine/core"
+import { NumberInput, Button, Group, Stack, Text } from "@mantine/core"
 import { useForm } from "@mantine/form"
 
-export default function Settings({ baseValues, resetValues, updateBaseValues}) {
+export default function Settings({ baseValues, resetValues, updateBaseValues }) {
   const form = useForm({
     initialValues: {
       fiddleFactor: baseValues.fiddleFactor,
@@ -10,61 +10,72 @@ export default function Settings({ baseValues, resetValues, updateBaseValues}) {
       alarm: baseValues.Ta,
     },
     validate: {
-      fiddleFactor: (value) => (value === '' || value === 0) ? 'Fiddle Factor must be greater than 0' : null,
-      standby: (value) => (value === '' || value === 0) ? 'Standby time must be greater than 0' : null,
-      alarm: (value) => (value === '' || value === 0) ? 'Alarm time must be greater than 0' : null,
+      fiddleFactor: (value) => (value === '' || value === 0) ? 'Must be greater than 0' : null,
+      standby: (value) => (value === '' || value === 0) ? 'Must be greater than 0' : null,
+      alarm: (value) => (value === '' || value === 0) ? 'Must be greater than 0' : null,
     }
   })
 
-  async function handleSubmit(event) {
+  function handleSubmit(event) {
     event.preventDefault();
 
-    const inputs = {
+    updateBaseValues({
       fiddleFactor: form.getInputProps('fiddleFactor').value,
       Ts: form.getInputProps('standby').value,
       Ta: form.getInputProps('alarm').value,
-    }
-
-    updateBaseValues(inputs);
+    });
   }
 
   return (
-    <>
-      <form onSubmit={(event) => handleSubmit(event)}>
-        <NumberInput 
-          inputMode='decimal' 
-          step="0.01" 
-          label="Deteriation Factor" 
-          placeholder="Testing" 
-          {...form.key('fiddleFactor')} 
+    <form onSubmit={handleSubmit}>
+      <Text size="sm" c="dimmed" mb="lg">
+        Adjust the values used in the battery calculation formula.
+      </Text>
+
+      <Stack gap="lg">
+        <NumberInput
+          label="Deterioration Factor"
+          description="Safety multiplier (default: 1.25)"
+          inputMode='decimal'
+          step={0.01}
+          min={0.01}
+          decimalScale={2}
+          {...form.key('fiddleFactor')}
           {...form.getInputProps('fiddleFactor')}
         />
 
-        <NumberInput 
-          inputMode='decimal' 
-          step="1" 
-          label="Time in standby" 
-          placeholder="24" mt={'lg'} 
-          {...form.key('standby')} 
+        <NumberInput
+          label="Standby Time"
+          description="Hours in standby mode"
+          inputMode='decimal'
+          step={1}
+          min={0.1}
+          suffix=" hrs"
+          {...form.key('standby')}
           {...form.getInputProps('standby')}
         />
-        
-        <NumberInput 
-          inputMode='decimal' 
-          step="0.1" 
-          label="Time in alarm" 
-          placeholder="0.5" 
-          mt={'lg'} 
-          {...form.key('alarm')} 
+
+        <NumberInput
+          label="Alarm Time"
+          description="Hours in alarm state"
+          inputMode='decimal'
+          step={0.1}
+          min={0.1}
+          suffix=" hrs"
+          {...form.key('alarm')}
           {...form.getInputProps('alarm')}
         />
-        
-        <Group mt={'lg'} >
-          <Button type='submit' disabled={!form.isValid()}>Save</Button>
-          <Button variant='outline' onClick={() => resetValues()} >Reset to default</Button>
-        </Group>
-      </form>
-    </>
+      </Stack>
+
+      <Group mt="xl" grow>
+        <Button type='submit' disabled={!form.isValid()}>
+          Save
+        </Button>
+        <Button variant='light' color="gray" onClick={() => resetValues()}>
+          Reset
+        </Button>
+      </Group>
+    </form>
   )
 }
 
