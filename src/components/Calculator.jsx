@@ -8,6 +8,7 @@ import { IconBattery2, IconBatteryCharging, IconSettings } from '@tabler/icons-r
 
 import ResultsCard from './ResultsCard';
 import { notifications } from '@mantine/notifications';
+import { calculateBatteryCapacity } from '../lib/calculations';
 
 export default function Calculator({ baseValues, openSettings }) {
   const [results, setResults] = useState(null);
@@ -23,11 +24,7 @@ export default function Calculator({ baseValues, openSettings }) {
     }
   })
 
-  function roundNumber(num) {
-    return Math.round((num + Number.EPSILON) * 100) / 100;
-  }
-
-  function restInputs() {
+  function resetInputs() {
     form.reset();
     setResults(null);
 
@@ -39,19 +36,19 @@ export default function Calculator({ baseValues, openSettings }) {
     })
   }
 
-  async function handleFormSubmit(event) {
+  function handleFormSubmit(event) {
     event.preventDefault();
     form.validate();
 
-    const Ts = baseValues.Ts;
-    const Is = form.getInputProps('Is').value;
-    const Ta = baseValues.Ta;
-    const Ia = form.getInputProps('Ia').value;
+    const result = calculateBatteryCapacity({
+      fiddleFactor: baseValues.fiddleFactor,
+      Ts: baseValues.Ts,
+      Ta: baseValues.Ta,
+      Is: form.getInputProps('Is').value,
+      Ia: form.getInputProps('Ia').value,
+    });
 
-    const temp1 = Ts * Is;
-    const temp2 = Ta * Ia;
-    const res = baseValues.fiddleFactor * (temp1 + temp2);
-    setResults(roundNumber(res));
+    setResults(result);
   }
 
   const FormulaDisplay = () => (
