@@ -156,7 +156,7 @@ export default function Calculator({ baseValues, openSettings }) {
         <ResultsCard result={results} />
 
         <Button
-          onClick={() => restInputs()}
+          onClick={resetInputs}
           fullWidth
           size="lg"
           variant="outline"
